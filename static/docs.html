@@ -1,0 +1,13 @@
+<br>
+{% for item in result %}
+{{ item["doc"] }} <br>
+&nbsp;&nbsp;&nbsp;&nbsp;URI: <a href="http://10.100.61.17:9999{{item.get("uri")}}">{{ item["uri"] }} </a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;METHOD: {{ item["method"] }} <br>
+{% if item['args'] %}
+    &nbsp;&nbsp;&nbsp;&nbsp;ARGS: <br>
+    {% for arg in item['args'] %}
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ arg }} <br>
+    {% end %}
+{% end %}
+<br>
+{% end %}
