@@ -1,2 +1,7 @@
+### Docker-Compose部署
 
-docker run -d --name=
+https://github.com/creditease-sec/insight2_docker
+
+### 常见问题
+
+https://github.com/creditease-sec/insight2/blob/master/FAQ.md
