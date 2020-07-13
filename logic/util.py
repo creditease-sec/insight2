@@ -7,7 +7,7 @@ from captcha.image import ImageCaptcha
 
 def password_md5(o):
     return md5('{}.{}'.format(md5(md5(o.encode()).hexdigest().encode()).hexdigest(),
-                                "U2FsdGVkX1/u1YaeTuRdWM9adoqFpGm9seFRccbhRR/O2qyTwP78Cok=").encode()).hexdigest()
+                                __conf__.COOKIE_SECRET).encode()).hexdigest()
 
 def conv_object(d):
     from datetime import datetime
