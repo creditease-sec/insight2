@@ -60,10 +60,12 @@ class Login(BaseHandler):
         __session__ = self.get_sessionid()
         store_code = mq.get(__session__)
         if not store_code:
+            mq.delete(__session__)
             self.write(dict(status = False, msg = "验证码过期,重新生成", refresh = 1))
             return
 
         if code.lower() != store_code.decode().lower():
+            mq.delete(__session__)
             self.write(dict(status = False, msg = "验证码错误,重新生成", refresh = 1))
             return
 
@@ -83,6 +85,7 @@ class Login(BaseHandler):
                                     User.password == password)
 
             if not user:
+                mq.delete(__session__)
                 self.write(dict(status = False, msg = "用户名或密码错误", refresh = 1))
             elif user.enable == 0:
                 self.write(dict(status = False, msg = "用户无法正常登陆，请联系管理员!"))
@@ -99,6 +102,7 @@ class Login(BaseHandler):
             authinfo = AuthMode.get_or_none(AuthMode.id == auth_from)
             status, msg = auth_login(model_to_dict(authinfo), username, password)
             if not status:
+                mq.delete(__session__)
                 self.write(dict(status = False, msg = "用户名或密码错误", refresh = 1))
                 return
             user = User.get_or_none(User.username == username)
@@ -117,6 +121,8 @@ class Login(BaseHandler):
                 role = model_to_dict(user.role)
                 role["id"] = role.pop("_id")
                 self.write(dict(status = True, msg = "登陆成功", role = role))
+
+        mq.delete(__session__)
 
 
 @url(r"/gencode", needcheck = False, category = "用户")
