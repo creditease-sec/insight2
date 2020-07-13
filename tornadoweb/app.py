@@ -53,7 +53,6 @@ class Application(object):
 
 
     def _get_webapp(self):
-        print ("static_path", app_path(__conf__.STATIC_DIR_NAME))
         settings = {
             "PORT"          : self._port,
             "static_path"   : app_path(__conf__.STATIC_DIR_NAME),
