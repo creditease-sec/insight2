@@ -1,12 +1,10 @@
+supervisor
 tornado==5.0
 requests
-
 pymysql
 peewee
-
 redis
 croniter
 python-ldap
-
 captcha==0.3
 
