@@ -1,4 +1,4 @@
-FROM crediteaseitsec/centos_py3.7:latest
+FROM daocloud.io/crediteaseitsec/centos_py37
 
 RUN mkdir -p /app/insight2
 ADD . /app/insight2/
