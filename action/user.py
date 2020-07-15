@@ -94,6 +94,7 @@ class Login(BaseHandler):
             else:
                 self.set_secure_cookie("__UID__", str(user.id))
                 self.set_secure_cookie("__USERNAME__", str(user.username))
+                self.set_secure_cookie("__AUTHFROM__", "AMS")
                 User.update(login_time = time.time(), auth_from = "LOCAL").where(User.id == user.id).execute()
                 role = model_to_dict(user.role)
                 role["id"] = role.pop("_id")
@@ -117,6 +118,7 @@ class Login(BaseHandler):
             else:
                 self.set_secure_cookie("__UID__", str(user.id))
                 self.set_secure_cookie("__USERNAME__", str(user.username))
+                self.set_secure_cookie("__AUTHFROM__", authinfo.mode)
                 User.update(auth_from = authinfo.mode, login_time = time.time(), is_del = 0).where(User.id == user.id).execute()
                 role = model_to_dict(user.role)
                 role["id"] = role.pop("_id")
