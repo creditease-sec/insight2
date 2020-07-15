@@ -35,8 +35,8 @@ def _show_info(app):
     print
 
     print ("Handlers:")
-    handlers = sorted(app.handlers, key = lambda h: h[0])
-    pprint(handlers)
+    #handlers = sorted(app.handlers, key = lambda h: h[0])
+    pprint(app.handlers)
 
     print
 
