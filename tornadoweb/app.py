@@ -39,9 +39,7 @@ class Application(object):
         except Exception as e:
             api_version = ''
 
-        for pattern, _, handler in handlers:
-            print (pattern, _, handler)
-
+        handlers = sorted(handlers, key = lambda x:x[1])
         handlers = [(api_version + pattern, handler) for pattern, _, handler in handlers]
 
         handlers.append((r'^/upload/(.*?)$', tornado.web.StaticFileHandler, {"path":"upload", "default_filename":"index.html"}))
