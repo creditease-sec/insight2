@@ -136,7 +136,10 @@ class AuthModeAll(BaseHandler):
 
         authmode = [model_to_dict(item) for item in authmode]
         for am in authmode:
-            am.pop('config')
+            config = am.pop('config')
+            config = json.loads(config)
+            am['default'] = int(config.get('default') or 0)
+            am['href'] = config.get('href') or ""
             am.pop('enable')
             am.pop('create_time')
             am.pop('update_time')

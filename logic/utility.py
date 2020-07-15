@@ -242,7 +242,7 @@ def auth_login(authinfo, username = None, password = None, test = False):
                 return True, ""
 
             searchScope  = ldap.SCOPE_SUBTREE
-            searchFiltername = "sAMAccountName"
+            searchFiltername = config.get("loginname_property") or "sAMAccountName"
             searchFilter = '(' + searchFiltername + "=" + username +')'
 
             ldap_result_id = conn.search(baseDN, searchScope, searchFilter, retrieveAttributes)
