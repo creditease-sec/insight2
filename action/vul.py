@@ -351,8 +351,9 @@ class VulOpen(LoginedRequestHandler):
             app_id = vul.get('app_id')
             if app_id:
                 app = App.get_or_none(App.id == app_id)
-                vul['app_id'] = app._id
-                vul['appname'] = app.appname
+                if app:
+                    vul['app_id'] = app._id
+                    vul['appname'] = app.appname
 
         self.write(dict(page_index = page_index, \
                             total = total, \
@@ -441,7 +442,8 @@ class VulMy(LoginedRequestHandler):
             app_id = vul.get('app_id')
             if app_id:
                 app = App.get_or_none(App.id == app_id)
-                vul['appname'] = app.appname
+                if app:
+                    vul['appname'] = app.appname
 
             article_id = vul.get('article_id')
             if article_id:
