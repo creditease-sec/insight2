@@ -59,9 +59,12 @@ class VulLogList(LoginedRequestHandler):
             cond.append(VulLog.create_time <= end)
 
         if vul_id:
-            vul = Vul.get_or_none(Vul._id == vul_id)
-            if vul:
-                cond.append(VulLog.vul_id == int(vul.id))
+            if len(vul_id) < 24:
+                cond.append(VulLog.vul_id == int(vul_id))
+            else:
+                vul = Vul.get_or_none(Vul._id == vul_id)
+                if vul:
+                    cond.append(VulLog.vul_id == int(vul.id))
 
         if user_id:
             cond.append(VulLog.user_id == int(user_id))
