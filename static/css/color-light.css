@@ -266,6 +266,13 @@ el-input-number__increase:hover:not(.is-disabled)~.el-input .el-input__inner:not
 .el-input-number__increase:hover:not(.is-disabled)~.el-input .el-input__inner:not(.is-disabled) {
     border-color:  #3e9b87f3 !important;
 }
-input-number__increase:hover {
+
+
+.el-switch.is-checked .el-switch__core {
     border-color:  #3e9b87f3 !important;
+    background-color:#3e9b87f3 !important;
+}
+
+.cron-button-group{
+	display:inline !important;
 }
