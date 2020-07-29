@@ -250,11 +250,11 @@ class VulList(LoginedRequestHandler):
 
         total = Vul.select().where(*cond).count()
 
-        vul = Vul.select().where(*cond). \
+        vuls = Vul.select().where(*cond). \
                         order_by(sort). \
                         paginate(page_index, page_size)
 
-        vuls = [model_to_dict(item) for item in vul]
+        vuls = [model_to_dict(item) for item in vuls]
         for vul in vuls:
             vul["id"] = vul.pop("_id")
             user = User.get_or_none(User.id == vul.get('user_id'))
@@ -264,20 +264,21 @@ class VulList(LoginedRequestHandler):
             app_id = vul.get('app_id')
             if app_id:
                 app = App.get_or_none(App.id == app_id)
-                vul['app_id'] = app._id
-                vul['appname'] = app.appname
-                group = app.group
-                if group:
-                    vul['group_name'] = group.name
-                    vul['group_id'] = group._id
+                if app:
+                    vul['app_id'] = app._id
+                    vul['appname'] = app.appname
+                    group = app.group
+                    if group:
+                        vul['group_name'] = group.name
+                        vul['group_id'] = group._id
 
-                vul['remaining_time'] = None
-                if vul.get("audit_time"):
-                    app = model_to_dict(app)
-                    risk_score, repair_time = get_risk_score_and_end_date(vul.get("real_rank"), app)
-                    start_date = datetime.fromtimestamp(vul.get("audit_time"))
-                    remaining_time = (start_date - datetime.now()).days + repair_time
-                    vul['remaining_time'] = remaining_time
+                    vul['remaining_time'] = None
+                    if vul.get("audit_time"):
+                        app = model_to_dict(app)
+                        risk_score, repair_time = get_risk_score_and_end_date(vul.get("real_rank"), app)
+                        start_date = datetime.fromtimestamp(vul.get("audit_time"))
+                        remaining_time = (start_date - datetime.now()).days + repair_time
+                        vul['remaining_time'] = remaining_time
 
             article_id = vul.get('article_id')
             if article_id:
