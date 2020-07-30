@@ -93,7 +93,6 @@ class Login(BaseHandler):
                 self.write(dict(status = False, msg = "用户认证成功，未激活，请联系管理员!"))
             else:
                 self.set_secure_cookie("__UID__", str(user.id))
-                self.set_secure_cookie("__USERNAME__", str(user.username))
                 self.set_secure_cookie("__AUTHFROM__", "LOCAL")
                 User.update(login_time = time.time(), auth_from = "LOCAL").where(User.id == user.id).execute()
                 role = model_to_dict(user.role)
@@ -117,7 +116,6 @@ class Login(BaseHandler):
                 self.write(dict(status = False, msg = "用户认证成功，未激活，请联系管理员!"))
             else:
                 self.set_secure_cookie("__UID__", str(user.id))
-                self.set_secure_cookie("__USERNAME__", str(user.username))
                 self.set_secure_cookie("__AUTHFROM__", authinfo.mode)
                 User.update(auth_from = authinfo.mode, login_time = time.time(), is_del = 0).where(User.id == user.id).execute()
                 role = model_to_dict(user.role)
@@ -144,16 +142,14 @@ class Gencode(BaseHandler):
 
 
 @url(r"/logout", needcheck = False, category = "用户")
-class Logout(LoginedRequestHandler):
+class Logout(BaseHandler):
     """
         用户登出
     """
     def get(self):
-        uid = self.uid
         self.clear_cookie("__UID__")
-        self.clear_cookie("__USERNAME__")
-
-        user = User.get_or_none(User.id == int(uid))
+        self.clear_cookie("__AUTHFROM__")
+        self.clear_cookie("__S__")
 
         status = 1
         logout_url = ""
