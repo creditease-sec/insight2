@@ -20,10 +20,10 @@ class DashBoard(LoginedRequestHandler):
 
     """
     def get(self):
-        t1 = time.time()
-        start = self.get_argument("start", 0)
-        end = self.get_argument("end", time.time())
-        vuls = [item for item in Vul.select(Vul.submit_time, Vul.vul_status, Vul.fix_time, Vul.vul_source, Vul.real_rank, Vul.vul_type, Vul.audit_time, Vul.app_id).where(Vul.submit_time >=start, Vul.submit_time <= end)]
+        start = float(self.get_argument("start", 0))
+        end = float(self.get_argument("end", time.time()))
+
+        vuls = [item for item in Vul.select(Vul.submit_time, Vul.vul_status, Vul.fix_time, Vul.vul_source, Vul.real_rank, Vul.vul_type, Vul.audit_time, Vul.app_id)]
         apps = [item for item in App.select(App.id, App.appname, App.check_time)]
         assets = [item for item in Asset.select(Asset.id, Asset.app_id, Asset.type)]
         ### 概览
@@ -38,10 +38,9 @@ class DashBoard(LoginedRequestHandler):
         last_month_end = datetime(year = last_month.year, month = last_month.month, day = last_month.day)
         last_month_end = time.mktime(time.strptime(str(last_month_end), "%Y-%m-%d %H:%M:%S"))
 
-        total_vul_count = len([item for item in vuls if item.submit_time >= current_month_start])
-        last_month_total_vul_count = len([item for item in vuls if (item.submit_time >= last_month_start and Vul.submit_time < last_month_end)])
+        current_month_vul_count = len([item for item in vuls if item.submit_time >= current_month_start])
+        last_month_vul_count = len([item for item in vuls if (item.submit_time >= last_month_start and item.submit_time < last_month_end)])
 
-        all_count = len(vuls)
         fix_count = len([item for item in vuls if item.vul_status == 60])
 
         last_three_month =  now - timedelta(weeks = 12)
@@ -50,8 +49,9 @@ class DashBoard(LoginedRequestHandler):
         app_count = len(apps)
         test_app_count = len([item for item in apps if item.check_time >= last_three_month_start])
 
+        total_vul_count = len(vuls)
         test_percent = round(test_app_count / app_count * 100, 2) if app_count else 0
-        fixes_percent = round(fix_count / all_count * 100, 2) if all_count else 0
+        fixes_percent = round(fix_count / total_vul_count * 100, 2) if total_vul_count else 0
 
         star_level = math.ceil((test_percent/100 + fixes_percent/100) / 2 / 0.2) or 1
 
@@ -104,13 +104,11 @@ class DashBoard(LoginedRequestHandler):
 
         dashboard_data = {
             "summary":{
-                "total_vul_count":total_vul_count,
-                "vul_increase_percent": round((total_vul_count - last_month_total_vul_count)/total_vul_count * 100 if total_vul_count else 0, 2),
-                "vul_increase_count": total_vul_count - last_month_total_vul_count,
+                "current_month_vul_count":current_month_vul_count,
+                "vul_increase_percent": round((current_month_vul_count - last_month_vul_count)/current_month_vul_count * 100 if current_month_vul_count else 0, 2),
+                "vul_increase_count": current_month_vul_count - last_month_vul_count,
                 "test_percent": test_percent,
                 "fixes_percent": fixes_percent,
-                "fix_count": fix_count,
-                "all_count": all_count,
                 "star_level": star_level,
                 "hot_data": {"data": hot_data, "range": [quarter_start_date.isoformat(), quarter_end_date.isoformat()]},
                 "vul_trend_data":{
@@ -122,11 +120,11 @@ class DashBoard(LoginedRequestHandler):
         }
 
         ### 漏洞统计
-        total_vul_count = len(vuls)
-
+        vuls2 = [item for item in vuls if item.submit_time >= start and item.submit_time <= end]
+        total_vul_count = len(vuls2)
         solved_count = 0
         total_solved_cost = 0
-        for vul in vuls:
+        for vul in vuls2:
             if vul.fix_time:
                 total_solved_cost += (vul.fix_time - vul.submit_time)
                 solved_count += 1
@@ -137,12 +135,12 @@ class DashBoard(LoginedRequestHandler):
 
         vul_source_data = []
         for k, v in VUL_SOURCE.items():
-            count = len([item for item in vuls if item.vul_source == int(k)])
+            count = len([item for item in vuls2 if item.vul_source == int(k)])
             if count:
                 vul_source_data.append({"name": v, "value": count})
 
         rank_distribution_data = {}
-        for vul in vuls:
+        for vul in vuls2:
             rank = vul.real_rank
             if not rank: continue
             if rank in rank_distribution_data:
@@ -155,7 +153,7 @@ class DashBoard(LoginedRequestHandler):
 
         vul_type_data = []
         for k, v in VUL_TYPE.items():
-            count = len([item for item in vuls if item.vul_type == int(k)])
+            count = len([item for item in vuls2 if item.vul_type == int(k)])
             if count:
                 vul_type_data.append({"name": v, "value": count})
 
@@ -166,7 +164,7 @@ class DashBoard(LoginedRequestHandler):
 
         for vul_type in vul_types:
             tmp_data = dict((week, 0) for week in range(1, 8))
-            for vul in vuls:
+            for vul in vuls2:
                 if not vul.audit_time: continue
                 audit_time = datetime.fromtimestamp(vul.audit_time)
                 week_day = audit_time.weekday() + 1
@@ -203,6 +201,7 @@ class DashBoard(LoginedRequestHandler):
         dashboard_data["vul"] = vul_dashboard
 
         ### 资产统计
+        vuls3 = vuls
         unassociated_asset_count = len([item for item in assets if not item.app_id])
         app_asset_associated_percent = round((len(assets) - unassociated_asset_count) / len(assets) * 100, 2) if len(assets) else 0
 
@@ -213,7 +212,7 @@ class DashBoard(LoginedRequestHandler):
         asset_generation_data = {}
         asset_overdue_sovled_data = {}
         asset_overdue_unsovled_data = {}
-        for vul in vuls:
+        for vul in vuls3:
             app_id = vul.app_id
             if not app_id: continue
             appname = dict_apps.get(app_id)
@@ -275,4 +274,3 @@ class DashBoard(LoginedRequestHandler):
 
         dashboard_data['assets'] = _asset
         self.write(dict(status = True, data = dashboard_data))
-
