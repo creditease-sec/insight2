@@ -22,6 +22,7 @@ STATIC_DIR_NAME = "static"
 TEMPLATE_DIR_NAME = "template"
 
 COOKIE_SECRET = "U2FsdGVkX1/u1YaeTuRdWM9adoqFpGm9seFRccbhRR/O2qyTwP78Cok="
+COOKIE_EXPIRES_DAYS = 30
 
 API_VERSION = "/api"
 
