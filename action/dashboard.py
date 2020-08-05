@@ -105,7 +105,7 @@ class DashBoard(LoginedRequestHandler):
         dashboard_data = {
             "summary":{
                 "current_month_vul_count":current_month_vul_count,
-                "vul_increase_percent": round((current_month_vul_count - last_month_vul_count)/current_month_vul_count * 100 if current_month_vul_count else 0, 2),
+                "vul_increase_percent": round((current_month_vul_count - last_month_vul_count)/last_month_vul_count * 100 if last_month_vul_count else 0, 2),
                 "vul_increase_count": current_month_vul_count - last_month_vul_count,
                 "test_percent": test_percent,
                 "fixes_percent": fixes_percent,

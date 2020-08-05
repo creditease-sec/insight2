@@ -59,6 +59,12 @@ class BaseHandler(tornado.web.RequestHandler):
                 vul = Vul.get_or_none(Vul._id == vul_id)
                 if vul:
                     title = vul.vul_name
+
+                username = ""
+                if self.uid:
+                    user = User.get_or_none(User.id == int(self.uid))
+                    username = user.nickname or user.username
+
                 VulLog(vul_id = vul.id, user_id = self.uid, title = title, username = username, action = action, content = content).save()
 
         if True:
