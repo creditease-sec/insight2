@@ -231,6 +231,33 @@ class Extension(BaseModel):
     config = TextField(default = "")
     create_time = DoubleField(default = time.time)
 
+class CronTab(BaseModel):
+    _id = CharField(default = id_func)
+    name = TextField(default = "")
+    uid = IntegerField(default = 0)
+    eid = CharField(default = "")
+    crontab = CharField(default = "")
+    relate = CharField(default = "SYSTEM")# 关联的类型 SYSTEM, APP, ASSET, VUL 等
+    relate_id = CharField(default = "")# 关联的id
+    enable = IntegerField(default = 1) # 0, 1
+    remark = TextField(default = "")
+    exec_count = IntegerField(default = 0)
+    status = IntegerField(default = 0) # 0, 1, 2
+    log = LongTextField(null = True)
+    config = TextField(default = "")
+    create_time = DoubleField(default = time.time)
+    update_time = DoubleField(default = time.time)
+    last_time = DoubleField(default = 0)
+    next_time = DoubleField(default = 0)
+
+class CronTabLog(BaseModel):
+    _id = CharField(default = id_func)
+    eid = CharField(default = "")
+    content = LongTextField(null = True)
+    start_time = DoubleField(default = 0)
+    end_time = DoubleField(default = 0)
+    create_time = DoubleField(default = time.time)
+
 class ExtensionLog(BaseModel):
     _id = CharField(default = id_func)
     eid = CharField(default = "")
@@ -267,8 +294,20 @@ class Test(BaseModel):
     name = CharField(default = "")
 
 def init_db():
-    db.drop_tables([GroupUser, User, Role, Group, Vul, AuthMode, SystemSettings, Asset, App, VulLog, Message, MessagePoint, Article, Category, Extension, ExtensionLog])
-    db.create_tables([Role, User, Group, GroupUser, Vul, AuthMode, SystemSettings, Asset, App, VulLog, Message, MessagePoint, Article, Category, Extension, ExtensionLog])
+    db.drop_tables([GroupUser, User, Role, Group, Vul, AuthMode, SystemSettings, Asset, App, VulLog, Message, MessagePoint, Article, Category, Extension, ExtensionLog, CronTab, CronTabLog])
+    db.create_tables([Role, User, Group, GroupUser, Vul, AuthMode, SystemSettings, Asset, App, VulLog, Message, MessagePoint, Article, Category, Extension, ExtensionLog, CronTab, CronTabLog])
+
+    _id = CharField(default = id_func)
+    name = TextField(default = "")
+    uid = IntegerField(default = 0)
+    eid = CharField(default = "")
+    crontab = CharField(default = "")
+    relate = CharField(default = "SYSTEM")# 关联的类型 SYSTEM, APP, ASSET, VUL 等
+    relate_id = CharField(default = "")# 关联的id
+    enable = IntegerField(default = 1) # 0, 1
+    remark = TextField(default = "")
+
+    CronTab(name = "测试", uid = 1, eid = "scan", crontab = "*/1 * * * *", relate = "SYSTEM", enable = 1, remark = "测试").save()
 
     Role(name = "超级管理员", level = 0, accesses = "").save()
     Role(name = "普通用户", level = 5, accesses = "").save()
@@ -324,7 +363,7 @@ def init_data():
     transfer.transfer_app_group()
 
 def init_crontab():
-    apps = App.select().where(App.eid != "")
+    cs = CronTab.select().where(CronTab.enable == 1)
     path = os.path.dirname(os.path.dirname(__file__))
 
     crontab = """
@@ -343,10 +382,11 @@ MAILTO=root
 # |  |  |  |  |
 # *  *  *  *  * user-name  command to be executed
 """
-    for app in apps:
-        crontab += "\n{} root cd {};python run.py --ex={} --app_id={}".format(get_crontab(app.crontab), path, app.eid, app.id)
+    for item in cs:
+        crontab += "\n{} root cd {};python run.py --crontab_id={}".format(item.crontab, path, item._id)
 
     crontab += "\n1 10 * * * root cd {};python run_check_vul.py".format(path)
+    crontab += "\n1 6 * * * root cd {};python run.py --ex=ldap".format(path)
 
     os.system('echo "{}" > /etc/crontab'.format(crontab))
 

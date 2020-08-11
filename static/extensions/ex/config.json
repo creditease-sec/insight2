@@ -1,0 +1,9 @@
+{
+    "eid": "scan",
+    "type": "0",
+    "name": "扫描检查",
+    "author": "insight2",
+    "desc": "对输入的资产进行扫描检查",
+    "version": "1.1.2",
+    "args": [{"name": "iplist", "type": "string", "comment": "支持IPv4/IPv6", "max_length": 128, "input_type": "text", "row": 1}]
+}

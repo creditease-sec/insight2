@@ -1,5 +1,7 @@
 #!encoding=utf-8
 import sys
+import croniter
+from datetime import datetime
 from hashlib import md5
 from uuid import uuid1
 from random import randint
@@ -124,4 +126,11 @@ def get_risk_score_and_end_date(rank, app):
         days = 365
 
     return risk_score, days
+
+def get_next_time(sched, now):
+    x = sched
+    cron = croniter.croniter(sched, now)
+    ret = cron.get_next(datetime)
+    return ret
+
 

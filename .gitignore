@@ -16,7 +16,6 @@ continuous_integration/hdfs-initialized
 dask-worker-space/
 __pycache__
 
-static/extensions/
 .python-version
 .vscode
 mysql
@@ -29,4 +28,3 @@ dev_settings.py
 *.PNG
 *.JPG
 *.JPEG
-upload/extensions/

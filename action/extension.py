@@ -37,7 +37,7 @@ class ExtensionUpload(LoginedRequestHandler):
         data_md5 = md5(body).hexdigest()
 
         filename = "{}.zip".format(data_md5)
-        zip_file = os.path.join("/tmp", filename)
+        zip_file = os.path.join('{}/extensions'.format(__conf__.STATIC_DIR_NAME), filename)
 
         with open(zip_file, 'wb') as f:
             f.write(body)
@@ -46,7 +46,6 @@ class ExtensionUpload(LoginedRequestHandler):
         zip_ref = zipfile.ZipFile(zip_file, 'r')
         zip_ref.extractall(ex_path)
         zip_ref.close()
-        os.remove(zip_file)
 
         if "config.json" not in os.listdir(ex_path):
             shutil.rmtree(ex_path)
@@ -82,6 +81,7 @@ class ExtensionUpload(LoginedRequestHandler):
         elif ex:
             ex_path = os.sep.join(['{}/extensions'.format(__conf__.STATIC_DIR_NAME), ex.path])
             shutil.rmtree(ex_path)
+            os.remove("{}.zip".format(ex_path))
             Extension.update(config_template = json.dumps(config_template), desc = desc, name = name, type = _type, path = data_md5, version = version, remark = remark ).where(Extension.eid == eid).execute()
         else:
             Extension(config_template = json.dumps(config_template), desc = desc, name = name, eid = eid, type = _type, path = data_md5, version = version, remark = remark ).save()
@@ -151,6 +151,19 @@ class ExtensionList(LoginedRequestHandler):
         self.write(dict(result = extension))
 
 
+@url(r"/extension/download", category = "扩展")
+class ExtensionDownload(BaseHandler):
+    """
+        扩展下载
+
+        eid:eid
+    """
+    def get(self):
+        eid = self.get_argument('eid')
+        ex = Extension.get_or_none(Extension.eid == eid)
+        self.write(dict(status = True, url = "{}/extensions/{}.zip".format(__conf__.STATIC_DIR_NAME, ex.path)))
+
+
 @url(r"/extension/config", category = "扩展")
 class ExtensionConfig(LoginedRequestHandler):
     """
@@ -170,26 +183,6 @@ class ExtensionConfig(LoginedRequestHandler):
 
         self.write(dict(status = True, msg = '配置成功'))
 
-
-@url(r"/extension/run", category = "扩展")
-class ExtensionRun(LoginedRequestHandler):
-    """
-        扩展测试调用
-
-        eid: 扩展eid
-        app_id: 应用id
-        info: 说明
-    """
-    def post(self):
-        eid = self.get_argument('eid')
-        app_id = self.get_argument('app_id')
-        content = self.get_argument('content', '')
-
-        t = threading.Thread(target=extension.run, args=(eid, app_id, 1, content, ))
-        t.daemon = True
-        t.start()
-
-        self.write(dict(status = True, msg = '调用成功'))
 
 @url(r"/extension/log/add", category = "扩展")
 class ExtensionLogAdd(LoginedRequestHandler):

@@ -70,6 +70,14 @@ class VulAdd(LoginedRequestHandler):
             update_time       = time.time()
         )
 
+        vul_status = int(doc.get("vul_status", 10))
+        if vul_status in [40, 60]:
+            doc["audit_time"] = time.time()
+        elif vul_status in [50]:
+            doc["notice_time"] = time.time()
+        elif vul_status in [20, 30, 35, 60]:
+            doc["fix_time"] = time.time()
+
         if _id:
             Vul.update(**doc). \
                         where(Vul._id == _id). \
