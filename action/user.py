@@ -365,6 +365,7 @@ class UserList(LoginedRequestHandler):
         role_id = self.get_argument('role_id', None)
         page_index = int(self.get_argument('page_index', 1))
         page_size = int(self.get_argument('page_size', 10))
+        group_id = self.get_argument('group_id', None)
 
         sort = self.get_argument('sort', None)
         # 方向 desc
@@ -376,6 +377,18 @@ class UserList(LoginedRequestHandler):
 
         if search:
             cond.append(User.username.contains(search))
+
+        if group_id:
+            group = Group.get_or_none(Group._id == group_id)
+            # 有父组需要从父组中取用户
+            if group.parent:
+                groupusers = GroupUser.select().where(GroupUser.group_id == group.parent)
+                
+                group_usernames = []
+                for gu in groupusers:
+                    group_usernames.append(gu.user.username)
+
+                cond.append(User.username.in_(group_usernames))
 
         if not cond:
             cond = (None, )
@@ -390,7 +403,6 @@ class UserList(LoginedRequestHandler):
                 sort = sort.desc()
 
         total = User.select().where(*cond).count()
-
         users = User.select().where(*cond). \
                         order_by(sort).\
                         paginate(page_index, page_size)
