@@ -70,7 +70,8 @@ def main():
         crontab.run(opts.crontab_id)
     else:
         #run(port = opts.port, config = opts.config, callback = _show_info)
-        from logic.model import init_db, init_crontab
+        from logic.model import init_db, init_crontab, version_upgrade
+        version_upgrade()
         init_crontab()
         app.run()
 

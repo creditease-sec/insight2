@@ -104,6 +104,7 @@ class SystemSettings(BaseModel):
     global_setting = CharField(null = True)
     point_setting = CharField(null = True)
     site_status = CharField(null = True)
+    version = CharField(null = True)
 
 class App(BaseModel):
     _id = CharField(default = id_func)
@@ -289,23 +290,9 @@ class Article(BaseModel):
     md_raw_content = LongTextField(default = "")
     content = LongTextField(default = "")
 
-class Test(BaseModel):
-    _id = CharField(default = id_func, primary_key = True)
-    name = CharField(default = "")
-
 def init_db():
     db.drop_tables([GroupUser, User, Role, Group, Vul, AuthMode, SystemSettings, Asset, App, VulLog, Message, MessagePoint, Article, Category, Extension, ExtensionLog, CronTab, CronTabLog])
     db.create_tables([Role, User, Group, GroupUser, Vul, AuthMode, SystemSettings, Asset, App, VulLog, Message, MessagePoint, Article, Category, Extension, ExtensionLog, CronTab, CronTabLog])
-
-    _id = CharField(default = id_func)
-    name = TextField(default = "")
-    uid = IntegerField(default = 0)
-    eid = CharField(default = "")
-    crontab = CharField(default = "")
-    relate = CharField(default = "SYSTEM")# 关联的类型 SYSTEM, APP, ASSET, VUL 等
-    relate_id = CharField(default = "")# 关联的id
-    enable = IntegerField(default = 1) # 0, 1
-    remark = TextField(default = "")
 
     CronTab(name = "测试", uid = 1, eid = "scan", crontab = "*/1 * * * *", relate = "SYSTEM", enable = 1, remark = "测试").save()
 
@@ -330,6 +317,57 @@ def init_db():
 
     accesses = ",".join(accesses)
     Role.update(accesses = accesses).where(Role.id == 1).execute()
+
+def version_upgrade():
+    import pymysql
+    from logic.upgrade import VERSIONS
+    conn = pymysql.connect(host = __conf__.DB_HOST, port = __conf__.DB_PORT, user = __conf__.DB_USER, passwd = __conf__.DB_PASS, database = __conf__.DB_NAME)
+    cur = conn.cursor()
+    try:
+        cur.execute("alter table systemsettings add column version varchar(255) default '';")
+    except:
+        pass
+
+
+    version = SystemSettings.get_or_none().version
+    for v in sorted(VERSIONS.keys()):
+        if v > version:
+            for sql in VERSIONS.get(v):
+                cur.execute(sql)
+
+            SystemSettings.update(version = v).execute()
+
+    cur.close()
+    conn.close()
+
+def init_crontab():
+    cs = CronTab.select().where(CronTab.enable == 1)
+    path = os.path.dirname(os.path.dirname(__file__))
+
+    crontab = """
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+
+# For details see man 4 crontabs
+
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name  command to be executed
+"""
+    for item in cs:
+        crontab += "\n{} root cd {};python run.py --crontab_id={} --config=dev_settings.py".format(item.crontab, path, item._id)
+
+    crontab += "\n1 10 * * * root cd {};python run_check_vul.py".format(path)
+    crontab += "\n1 6 * * * root cd {};python run.py --ex=ldap".format(path)
+
+    os.system('echo "{}" > /etc/crontab'.format(crontab))
+
 
 def gen_data():
     # 生成示例数据
@@ -361,33 +399,4 @@ def init_data():
     transfer.transfer_score()
     transfer.transfer_departs()
     transfer.transfer_app_group()
-
-def init_crontab():
-    cs = CronTab.select().where(CronTab.enable == 1)
-    path = os.path.dirname(os.path.dirname(__file__))
-
-    crontab = """
-SHELL=/bin/bash
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
-MAILTO=root
-
-# For details see man 4 crontabs
-
-# Example of job definition:
-# .---------------- minute (0 - 59)
-# |  .------------- hour (0 - 23)
-# |  |  .---------- day of month (1 - 31)
-# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
-# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
-# |  |  |  |  |
-# *  *  *  *  * user-name  command to be executed
-"""
-    for item in cs:
-        crontab += "\n{} root cd {};python run.py --crontab_id={}".format(item.crontab, path, item._id)
-
-    crontab += "\n1 10 * * * root cd {};python run_check_vul.py".format(path)
-    crontab += "\n1 6 * * * root cd {};python run.py --ex=ldap".format(path)
-
-    os.system('echo "{}" > /etc/crontab'.format(crontab))
-
 

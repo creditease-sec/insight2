@@ -357,6 +357,7 @@ class UserList(LoginedRequestHandler):
         page_size: 每页条数
         sort: 排序字段
         direction: 排序方向
+        group_id: 组id
 
         response: [{'id': '用户id', 'username': '用户名', 'role': {'id': '角色id', 'name': '角色名'}}]
     """
