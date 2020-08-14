@@ -60,6 +60,7 @@ class CronTabDel(LoginedRequestHandler):
     def post(self):
         _id = self.get_argument('id')
         CronTab.delete().where(CronTab._id == _id).execute()
+        CronTabLog.delete().where(CronTabLog.crontab_id == _id).execute()
         self.write(dict(status = True, msg = '删除成功'))
 
 @url(r"/crontab/enable", category = "定时任务")
@@ -89,6 +90,18 @@ class CronTabReset(LoginedRequestHandler):
         CronTab.update(status = 0).where(CronTab._id == _id).execute()
         self.write(dict(status = True, msg = '设置成功'))
 
+@url(r"/crontab/get", category = "定时任务")
+class CronTabGet(LoginedRequestHandler):
+    """
+        获取单条定时任务内容
+
+        id: 根据id查询
+    """
+    def get(self):
+        _id = self.get_argument('id')
+        result = model_to_dict(CronTab.get_or_none(CronTab._id == _id))
+        result['id'] =result.pop('_id')
+        self.write(result)
 
 
 @url(r"/crontab/list", category = "定时任务")
@@ -188,7 +201,7 @@ class CrontabCalendar(LoginedRequestHandler):
 
 
 @url(r"/crontablog/list", category = "定时任务")
-class CronTabLogList(BaseHandler):
+class CronTabLogList(LoginedRequestHandler):
     """
         定时任务结果查询
 
