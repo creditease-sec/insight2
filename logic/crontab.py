@@ -22,9 +22,16 @@ def run(crontab_id):
         my_print("已经存在执行中的定时任务")
         return False, "任务正在执行中"
 
-    my_print("任务开始执行\r\n\r\n--------")
     # 执行中...
     CronTab.update(status = 1, log = "", last_time = time.time()).where(CronTab._id == crontab_id).execute()
+
+    # 记录定时任务执行结果
+    crontablog = CronTabLog(crontab_id = crontab_id, content = "", start_time = time.time())
+    crontablog.save()
+    crontablog_id = crontablog.id
+    # CronTabLog
+
+    my_print("任务开始执行\r\n--------")
     try:
         eid = crontab.eid
         relate = crontab.relate
@@ -38,13 +45,20 @@ def run(crontab_id):
         module.__builtins__["println"] = my_print
 
         target = {}
-        module.main(target, **config)
+        result = module.main(target, **config)
+        if not isinstance(result, dict):
+            my_print("\r\n[ERROR] 自定义扩展请返回dict类型\r\n")
+        else:
+            my_print(json.dumps(conv_object(result)))
+            CronTabLog.update(content = json.dumps(conv_object(result))).where(CronTabLog.id == crontablog_id).execute()
+
     except:
         import traceback
         my_print(traceback.format_exc())
 
     # 执行完成
     CronTab.update(status = 2, exec_count = CronTab.exec_count + 1).where(CronTab._id == crontab_id).execute()
+    CronTabLog.update(end_time = time.time()).where(CronTabLog.id == crontablog_id).execute()
     my_print("--------\r\n\r\n任务执行完成")
 
     next_time = get_next_time(crontab.crontab, datetime.now())

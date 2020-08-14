@@ -185,3 +185,34 @@ class CrontabCalendar(LoginedRequestHandler):
                 result.append(x)
 
         self.write(dict(result = result))
+
+
+@url(r"/crontablog/list", category = "定时任务")
+class CronTabLogList(BaseHandler):
+    """
+        定时任务结果查询
+
+        search: 查询条件
+    """
+    def get(self):
+        crontab_id = self.get_argument('crontab_id')
+        search = self.get_argument('search', None)
+        page_index = int(self.get_argument('page_index', 1))
+        page_size = int(self.get_argument('page_size', 10))
+
+        cond = [CronTabLog.crontab_id == crontab_id]
+
+        sort = CronTabLog.id.desc()
+
+        total = CronTabLog.select().where(*cond).count()
+        result = CronTabLog.select().where(*cond). \
+                    order_by(sort). \
+                    paginate(page_index, page_size)
+
+        result = [model_to_dict(item) for item in result]
+        for item in result:
+            item['id'] =item.pop('_id')
+
+        self.write(dict(total = total, result = result))
+
+
