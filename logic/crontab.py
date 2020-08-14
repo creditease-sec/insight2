@@ -10,10 +10,8 @@ from logic.util import *
 sys.path.append("{}/extensions".format(__conf__.STATIC_DIR_NAME))
 
 def run(crontab_id):
-    logs = []
     def my_print(s):
-        logs.append(str(s))
-        CronTab.update(log = "\r\n".join(logs)).where(CronTab._id == crontab_id).execute()
+        CronTab.update(log = CronTab.log + s + "\r\n").where(CronTab._id == crontab_id).execute()
 
     crontab = CronTab.get_or_none(CronTab._id == crontab_id, CronTab.enable == 1)
     if not crontab:
@@ -26,7 +24,7 @@ def run(crontab_id):
 
     my_print("任务开始执行\r\n\r\n--------")
     # 执行中...
-    CronTab.update(status = 1, last_time = time.time()).where(CronTab._id == crontab_id).execute()
+    CronTab.update(status = 1, log = "", last_time = time.time()).where(CronTab._id == crontab_id).execute()
     try:
         eid = crontab.eid
         relate = crontab.relate
@@ -39,7 +37,7 @@ def run(crontab_id):
         module = __import__(ex_path, fromlist = ["main"])
         module.__builtins__["println"] = my_print
 
-        target = {"url": "www.baidu.com"}
+        target = {}
         module.main(target, **config)
     except:
         import traceback

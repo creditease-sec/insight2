@@ -25,7 +25,7 @@ VERSIONS = {"v1.0.0": ["""
         CREATE TABLE IF NOT EXISTS `crontablog` (
           `id` int(11) NOT NULL AUTO_INCREMENT,
           `_id` varchar(255) NOT NULL,
-          `eid` varchar(255) NOT NULL,
+          `crontab_id` varchar(255) NOT NULL,
           `content` longtext,
           `start_time` double NOT NULL,
           `end_time` double NOT NULL,

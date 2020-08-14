@@ -253,7 +253,7 @@ class CronTab(BaseModel):
 
 class CronTabLog(BaseModel):
     _id = CharField(default = id_func)
-    eid = CharField(default = "")
+    crontab_id = CharField(default = "")
     content = LongTextField(null = True)
     start_time = DoubleField(default = 0)
     end_time = DoubleField(default = 0)
@@ -291,6 +291,10 @@ class Article(BaseModel):
     content = LongTextField(default = "")
 
 def init_db():
+    #db.drop_tables([CronTab, CronTabLog])
+    #db.create_tables([CronTab, CronTabLog])
+    #CronTab(name = "测试", uid = 1, eid = "scan", crontab = "*/1 * * * *", relate = "SYSTEM", enable = 1, remark = "测试").save()
+    #return
     db.drop_tables([GroupUser, User, Role, Group, Vul, AuthMode, SystemSettings, Asset, App, VulLog, Message, MessagePoint, Article, Category, Extension, ExtensionLog, CronTab, CronTabLog])
     db.create_tables([Role, User, Group, GroupUser, Vul, AuthMode, SystemSettings, Asset, App, VulLog, Message, MessagePoint, Article, Category, Extension, ExtensionLog, CronTab, CronTabLog])
 
