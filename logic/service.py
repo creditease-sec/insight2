@@ -1,4 +1,5 @@
 #!encoding=utf-8
+import os
 import pymysql
 from redis import Redis
 from json import dumps
@@ -14,7 +15,8 @@ mq = Redis(host = __conf__.REDIS_HOST, port = __conf__.REDIS_PORT, \
 def send_pack(cmd, data):
     data = conv_object(data)
     pack = dumps(dict(cmd = cmd, data = data))
-    mq.rpush(__conf__.REDIS_CHANNEL, pack)
+    if not os.getenv("DISABLE_EMAIL"):
+        mq.rpush(__conf__.REDIS_CHANNEL, pack)
 
 def service_email(data):
     """

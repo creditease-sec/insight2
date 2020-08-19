@@ -170,7 +170,7 @@ class LoginedRequestHandler(BaseHandler):
             Check Role
         """
         current_user = User.get_or_none(User.id == self.uid)
-        current_user_level = current_user.level
+        current_user_level = current_user.role.level
 
         role = Role.get_or_none(Role.id == role_id)
         role_level = role.level
@@ -221,6 +221,7 @@ def get_handlers():
 
 
 import ldap
+from ldap.controls import SimplePagedResultsControl
 def auth_login(authinfo, username = None, password = None, test = False):
     auth_mode = authinfo.get('mode')
 
@@ -271,6 +272,48 @@ def auth_login(authinfo, username = None, password = None, test = False):
             return False, "用户名密码错误"
 
         return True, ""
+
+def ldap_search(username):
+    auth_info = AuthMode.get_or_none(AuthMode.mode == "LDAP")
+    if not auth_info:
+        return
+
+    auth_info = model_to_dict(auth_info)
+
+    config = json.loads(auth_info.get('config'))
+    host = config.get('host')
+    port = config.get('port')
+    Server = "ldap://{}:{}".format(host, port)
+    baseDN = config.get('basedn')
+
+    ldapuser = config.get('account') or ""
+    ldappass = config.get('password') or ""
+
+    dn = ""
+    try:
+        conn = ldap.initialize(Server)
+        retrieveAttributes = ['name', 'sAMAccountName', 'searchFiltername', 'mail']
+        conn.protocol_version = ldap.VERSION3
+        conn.simple_bind_s(ldapuser, ldappass)
+
+        searchScope  = ldap.SCOPE_SUBTREE
+        searchFiltername = config.get("loginname_property") or "sAMAccountName"
+        searchFilter = '{}=*{}*'.format(searchFiltername, username)
+
+        pg_ctrl = SimplePagedResultsControl(True, size=20, cookie="")
+        ldap_result = conn.search_ext_s(baseDN, searchScope, searchFilter, retrieveAttributes, serverctrls=[pg_ctrl])
+
+        r1 = []
+        pg_ctrl = SimplePagedResultsControl(True, size=20, cookie="")
+        searchFilter = 'name=*{}*'.format(username)
+        r1 = conn.search_ext_s(baseDN, searchScope, searchFilter, retrieveAttributes, serverctrls=[pg_ctrl])
+
+        return True, list(ldap_result) + list(r1)
+
+    except Exception as e:
+        return False, str(e)
+
+    return True, []
 
 def getHonorTitle(v):
     if v == 0:

@@ -280,6 +280,13 @@ class VulList(LoginedRequestHandler):
                         vul['group_name'] = group.name
                         vul['group_id'] = group._id
 
+                        parent = group.parent
+                        vul['parent_name'] = ''
+                        if parent:
+                            pgroup = Group.get_or_none(Group.id == parent)
+                            vul['parent_name'] = pgroup.name
+
+
                     vul['remaining_time'] = None
                     if vul.get("audit_time"):
                         app = model_to_dict(app)

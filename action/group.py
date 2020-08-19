@@ -43,8 +43,9 @@ class GroupUpsert(LoginedRequestHandler):
             parent_id = 0
             if parent:
                 parent_id = Group.get_or_none(Group._id == parent).id
-            Group(name = name, desc = desc, owner = User(id = self.uid), parent = parent_id).save()
-            self.write(dict(status = True, msg = '添加成功'))
+            group = Group(name = name, desc = desc, owner = User(id = self.uid), parent = parent_id)
+            group.save()
+            self.write(dict(status = True, msg = '添加成功', group_id = group._id))
 
 @url(r"/group/del", category = "用户组")
 class GroupDel(LoginedRequestHandler):
@@ -96,7 +97,7 @@ class GroupList(LoginedRequestHandler):
         search = self.get_argument('search', None)
         page_index = int(self.get_argument('page_index', 1))
         page_size = int(self.get_argument('page_size', 10))
-        group_id = self.get_argument('group_id', None)
+        #group_id = self.get_argument('group_id', None)
 
         sort = self.get_argument('sort', None)
         # 方向 desc
@@ -111,9 +112,11 @@ class GroupList(LoginedRequestHandler):
                 if gu:
                     group_ids = [item.group_id for item in gu]
                     cond = [(Group.name.contains(search))| (Group.id.in_(group_ids)) | (Group.owner_id == user.id)]
+        else:
+            cond.append(Group.parent == 0)
 
-        if group_id:
-            cond.append(Group._id == group_id)
+        #if group_id:
+        #    cond.append(Group._id == group_id)
 
         if not cond:
             cond.append(None)
@@ -127,39 +130,69 @@ class GroupList(LoginedRequestHandler):
         total = Group.select().where(*cond).count()
 
         group = Group.select().where(*cond). \
-                        order_by(sort). \
-                        paginate(page_index, page_size)
+                        order_by(sort).paginate(page_index, page_size)
 
         group = [model_to_dict(item) for item in group]
         for g in group:
-            #g['groupuser'] = group_user(g.get('id'), findall = True)
-            count = GroupUser.select().where(GroupUser.group_id == g['id']).count()
-            #g['groupuser'] = [{} for item in range(count)]
-            g['usercount'] = count
+            g['group_child_count'] = Group.select().where(Group.parent == g['id']).count()
+            g['usercount'] = GroupUser.select().where(GroupUser.group_id == g['id']).count()
             g['owner'] = g['owner']['username']
-
-        parent_group = dict((item.get('id'), item) for item in group if item.get('parent') == 0)
-        child_group = [item for item in group if item.get('parent') != 0]
-
-        no_parent_group = []
-        for g in child_group:
-            parent_id = g.get('parent')
-            if parent_group.get(parent_id):
-                if not parent_group[parent_id].get('children'):
-                    parent_group[parent_id]['children'] = []
-
-                g['id'] = g.pop('_id')
-                g.pop('parent', None)
-                g['parentname'] = parent_group[parent_id].get('name')
-                parent_group[parent_id]['children'].append(g)
-            else:
-                no_parent_group.append(g)
-
-        groups = list(parent_group.values()) + no_parent_group
-        for g in groups:
             g['id'] = g.pop('_id')
+            parent = g.get('parent')
+            g['parent_name'] = ''
+            if parent:
+                pgroup = Group.get_or_none(Group.id == parent)
+                g['parent_name'] = pgroup.name
 
         self.write(dict(page_index = page_index, \
                             total = total, \
-                            result = list(parent_group.values()) + no_parent_group))
+                            result = group))
+
+        #parent_group = dict((item.get('id'), item) for item in group if item.get('parent') == 0)
+        #child_group = [item for item in group if item.get('parent') != 0]
+
+        #no_parent_group = []
+        #for g in child_group:
+        #    parent_id = g.get('parent')
+        #    if parent_group.get(parent_id):
+        #        if not parent_group[parent_id].get('children'):
+        #            parent_group[parent_id]['children'] = []
+
+        #        g['id'] = g.pop('_id')
+        #        #g.pop('parent', None)
+        #        g['parentname'] = parent_group[parent_id].get('name')
+        #        parent_group[parent_id]['children'].append(g)
+        #    else:
+        #        no_parent_group.append(g)
+
+        #groups = list(parent_group.values()) + no_parent_group
+        #for g in groups:
+        #    g['id'] = g.pop('_id')
+
+        #self.write(dict(page_index = page_index, \
+        #                    total = total, \
+        #                    result = list(parent_group.values()) + no_parent_group))
+
+@url(r"/group/child/list", category = "用户组")
+class GroupChildList(LoginedRequestHandler):
+    """
+        子组查询
+
+        group_id: 组id
+    """
+    def get(self):
+        group_id = self.get_argument('group_id', None)
+        group = Group.get_or_none(Group._id == group_id)
+
+
+        groups = Group.select().where(Group.parent == group.id)
+
+        groups = [model_to_dict(item) for item in groups]
+        for g in groups:
+            g['group_child_count'] = Group.select().where(Group.parent == g['id']).count()
+            g['usercount'] = GroupUser.select().where(GroupUser.group_id == g['id']).count()
+            g['owner'] = g['owner']['username']
+            g['id'] = g.pop('_id')
+
+        self.write(dict(result = groups))
 

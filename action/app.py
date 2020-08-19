@@ -191,14 +191,21 @@ class AppList(LoginedRequestHandler):
         search = self.get_argument('search', None)
         page_index = int(self.get_argument('page_index', 1))
         page_size = int(self.get_argument('page_size', 10))
+        app_id = self.get_argument('app_id', None)
 
         sort = self.get_argument('sort', None)
         # 方向 desc
         direction = self.get_argument('direction', '')
 
-        cond = (None, )
+        cond = []
         if search:
-            cond = (App.appname.contains(search),)
+            cond.append(App.appname.contains(search))
+
+        if app_id:
+            cond.append(App._id == app_id)
+
+        if not cond:
+            cond = (None, )
 
         if sort:
             sort = getattr(App, sort)
@@ -230,6 +237,13 @@ class AppList(LoginedRequestHandler):
                 item['group_id'] = group.get('_id')
                 item['group_name'] = group.get('name')
                 item['group_owner'] = group.get('owner',{}).get("nickname") or group.get('owner',{}).get("username")
+
+                parent = group.get('parent')
+                item['parent_name'] = ''
+                if parent:
+                    pgroup = Group.get_or_none(Group.id == parent)
+                    item['parent_name'] = pgroup.name
+
                 sec_owner = item.pop('sec_owner')
                 if sec_owner:
                     user = User.get_or_none(User.id == sec_owner)

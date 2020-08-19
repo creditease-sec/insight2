@@ -31,8 +31,8 @@ class GroupUserUpsert(LoginedRequestHandler):
         else:
             group_id = self.get_argument('group_id')
             group_id = Group.get_or_none(Group._id == group_id).id
-            user_id = self.get_argument('user_id')
-            user_id = User.get_or_none(User._id == user_id).id
+            user_ids = self.get_arguments('user_id')
+            user_ids = [item.id for item in User.select().where(User._id.in_(user_ids))]
 
             settings = SystemSettings.get_or_none()
             global_setting = json.loads(settings.global_setting)
@@ -43,12 +43,13 @@ class GroupUserUpsert(LoginedRequestHandler):
                 self.write(dict(status = False, msg = '超过组最大成员数'))
                 return
 
-            groupuser = GroupUser.get_or_none(group_id = group_id, user_id = user_id)
-            if groupuser:
-                self.write(dict(status = False, msg = '用户已添加'))
-            else:
-                GroupUser(group_id = group_id, user_id = user_id, role_id = role_id).save()
-                self.write(dict(status = True, msg = '添加成功'))
+            for user_id in user_ids:
+                groupuser = GroupUser.get_or_none(group_id = group_id, user_id = user_id)
+                if not groupuser:
+                    GroupUser(group_id = group_id, user_id = user_id, role_id = role_id).save()
+
+            self.write(dict(status = True, msg = '添加成功'))
+
 
 @url(r"/groupuser/del", category = "用户组")
 class GroupUserDel(LoginedRequestHandler):

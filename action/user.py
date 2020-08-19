@@ -20,7 +20,7 @@ def get_default_role():
     if role:
         role_id = role.id
     else:
-        roles = Role.select()
+        roles = Role.select().where(Role.type == 0)
         roles = [model_to_dict(item) for item in roles]
         if roles:
             role_id = roles[-1].get('id')
@@ -163,6 +163,8 @@ class UserAdd(LoginedRequestHandler):
 
         id: 用户id
         username*:用户名
+        nickname:昵称
+        email:邮箱
         password: 用户密码
         role_id: 角色id
         enable: 状态
@@ -199,8 +201,9 @@ class UserAdd(LoginedRequestHandler):
             if user:
                 self.write(dict(status = False, msg = "用户已注册"))
             else:
-                User(username = username, **doc).save()
-                self.write(dict(status = True, msg = '添加成功'))
+                user = User(username = username, **doc)
+                user.save()
+                self.write(dict(status = True, msg = '添加成功', user_id = user._id))
 
 
 @url(r"/user/setting", needcheck = False, category = "用户")
@@ -427,6 +430,26 @@ class UserList(LoginedRequestHandler):
         self.write(dict(page_index = page_index, \
                             total = total, \
                             result = result))
+
+@url(r"/ldap/search", category = "用户")
+class LdapSearch(LoginedRequestHandler):
+    """
+        LDAP搜索用户
+
+        search: 查询条件
+    """
+    def get(self):
+        search = self.get_argument('search', None)
+        b, result = ldap_search(search)
+        data = []
+        for item in result:
+            print (item)
+            username = item[1].get('sAMAccountName', [b''])[0].decode()
+            nickname = item[1].get('name', [b''])[0].decode()
+            email = item[1].get('mail', [b''])[0].decode().lower()
+            data.append(dict(username = username, nickname = nickname, email = email))
+
+        self.write(dict(status = True, result = data))
 
 
 @url(r"/user/info", needcheck = False, category = "用户")

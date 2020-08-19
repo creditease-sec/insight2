@@ -301,7 +301,7 @@ def init_db():
     CronTab(name = "测试", uid = 1, eid = "scan", crontab = "*/1 * * * *", relate = "SYSTEM", enable = 1, remark = "测试").save()
 
     Role(name = "超级管理员", level = 0, accesses = "").save()
-    Role(name = "普通用户", level = 5, accesses = "").save()
+    Role(name = "普通用户", level = 5, accesses = "", default = 1).save()
     Role(name = "安全人员", level = 8, accesses = "", type = 1).save()
 
     User(username = "admin", password = password_md5("admin!Aa2020"), role_id = 1).save()
@@ -323,6 +323,14 @@ def init_db():
     Role.update(accesses = accesses).where(Role.id == 1).execute()
 
 def version_upgrade():
+    from logic.utility import access_list
+    accesses = []
+    for item in access_list():
+        accesses.extend([_.get('id') for _ in item.get('children')])
+
+    accesses = ",".join(accesses)
+    Role.update(accesses = accesses).where(Role.id == 1).execute()
+
     import pymysql
     from logic.upgrade import VERSIONS
     conn = pymysql.connect(host = __conf__.DB_HOST, port = __conf__.DB_PORT, user = __conf__.DB_USER, passwd = __conf__.DB_PASS, database = __conf__.DB_NAME)

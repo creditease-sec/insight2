@@ -65,7 +65,7 @@ class RoleDefault(LoginedRequestHandler):
         role = Role.get_or_none(Role._id == _id)
         _id = role.id
 
-        self.check_role_id(_id)
+        #self.check_role_id(_id)
 
         Role.update(default = 0). \
                     where(role.type == _type). \
