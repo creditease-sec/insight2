@@ -341,7 +341,7 @@ def version_upgrade():
         pass
 
 
-    version = SystemSettings.get_or_none().version
+    version = SystemSettings.get_or_none().version or ''
     for v in sorted(VERSIONS.keys()):
         if v > version:
             for sql in VERSIONS.get(v):

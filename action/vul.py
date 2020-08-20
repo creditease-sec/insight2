@@ -1,5 +1,6 @@
 #!coding=utf-8
 import time
+import json
 from hashlib import md5
 from datetime import datetime
 
@@ -666,3 +667,117 @@ class VulDownload(LoginedRequestHandler):
 
 
         self.write(text)
+
+@url(r"/vul/import", category = "漏洞")
+class VulImport(BaseHandler):
+    """
+        漏洞导入
+
+    """
+    def get(self):
+        self.post()
+
+    def post(self):
+        data = self.request.body
+        data = b'[{"ip":"10.134.136.89","user_group":"shiro-CVE-2020-11989\xe6\xbc\x8f\xe6\xb4\x9e\xe9\x80\x9a\xe5\x91\x8a\xe7\xbb\x84","leader":"fangzhouli@creditease.cn|xiaojunzhang@creditease.cn","app":"\xe5\xae\x9c\xe4\xbf\xa1\xe8\xb4\xa2\xe5\xaf\x8c\xe8\xb5\x84\xe4\xba\xa7\xe5\xad\x98\xe5\x9c\xa8shiro-CVE-2020-1234\xe6\xbc\x8f\xe6\xb4\x9e","responser":"jianwang163@creditease.cn|binxu37@creditease.cn","framework_name":"shiro","framework_version":"1.2.3","app_path":"/opt/yrd_web/credit-parser/WEB-INF","business_group":"\xe6\x9c\xaa\xe5\x88\x86\xe7\xbb\x84\xe4\xb8\xbb\xe6\x9c\xba","risk":"\xe8\xbf\x9c\xe7\xa8\x8b\xe4\xbb\xa3\xe7\xa0\x81\xe6\x89\xa7\xe8\xa1\x8c\xe3\x80\x81\xe6\x9c\xaa\xe6\x8e\x88\xe6\x9d\x83\xe8\xae\xbf\xe9\x97\xae"},{"ip":"10.151.5.220","user_group":"shiro-CVE-2020-11989\xe6\xbc\x8f\xe6\xb4\x9e\xe9\x80\x9a\xe5\x91\x8a\xe7\xbb\x84","leader":"fangzhouli@creditease.cn|xiaojunzhang@creditease.cn","app":"\xe5\xae\x9c\xe4\xbf\xa1\xe8\xb4\xa2\xe5\xaf\x8c\xe8\xb5\x84\xe4\xba\xa7\xe5\xad\x98\xe5\x9c\xa8shiro-CVE-2020-1234\xe6\xbc\x8f\xe6\xb4\x9e","responser":"jianwang163@creditease.cn|binxu37@creditease.cn","framework_name":"shiro","framework_version":"1.4.0","app_path":"/opt/amhome/am/WEB-INF","business_group":"\xe6\x9c\xaa\xe5\x88\x86\xe7\xbb\x84\xe4\xb8\xbb\xe6\x9c\xba","risk":"\xe6\x9c\xaa\xe6\x8e\x88\xe6\x9d\x83\xe8\xae\xbf\xe9\x97\xae"},{"ip":"10.134.136.72","user_group":"shiro-CVE-2020-11989\xe6\xbc\x8f\xe6\xb4\x9e\xe9\x80\x9a\xe5\x91\x8a\xe7\xbb\x84","leader":"fangzhouli@creditease.cn|xiaojunzhang@creditease.cn","app":"\xe5\xae\x9c\xe4\xbf\xa1\xe8\xb4\xa2\xe5\xaf\x8c\xe8\xb5\x84\xe4\xba\xa7\xe5\xad\x98\xe5\x9c\xa8shiro-CVE-2020-1234\xe6\xbc\x8f\xe6\xb4\x9e","responser":"jianwang163@creditease.cn|binxu37@creditease.cn","framework_name":"shiro","framework_version":"1.5.3","app_path":"/data/yx_soft/activemq/lib/optional","business_group":"\xe6\x9c\xaa\xe5\x88\x86\xe7\xbb\x84\xe4\xb8\xbb\xe6\x9c\xba","risk":"\xe6\x9c\xaa\xe6\x8e\x88\xe6\x9d\x83\xe8\xae\xbf\xe9\x97\xae"},{"ip":"10.134.90.15","user_group":"shiro-CVE-2020-11989\xe6\xbc\x8f\xe6\xb4\x9e\xe9\x80\x9a\xe5\x91\x8a\xe7\xbb\x84","leader":"fangzhouli@creditease.cn|xiaojunzhang@creditease.cn","app":"\xe5\xae\x9c\xe4\xbf\xa1\xe8\xb4\xa2\xe5\xaf\x8c\xe8\xb5\x84\xe4\xba\xa7\xe5\xad\x98\xe5\x9c\xa8shiro-CVE-2020-1234\xe6\xbc\x8f\xe6\xb4\x9e","responser":"jianwang163@creditease.cn|binxu37@creditease.cn","framework_name":"shiro","framework_version":"1.5.3","app_path":"/data/yx_soft/activemq/lib/optional","business_group":"\xe6\x9c\xaa\xe5\x88\x86\xe7\xbb\x84\xe4\xb8\xbb\xe6\x9c\xba","risk":"\xe6\x9c\xaa\xe6\x8e\x88\xe6\x9d\x83\xe8\xae\xbf\xe9\x97\xae"},{"ip":"10.140.129.13","user_group":"shiro-CVE-2020-11989\xe6\xbc\x8f\xe6\xb4\x9e\xe9\x80\x9a\xe5\x91\x8a\xe7\xbb\x84","leader":"jianwang163@creditease.cn|binxu37@creditease.cn","app":"\xe5\xae\x9c\xe4\xba\xba\xe8\xb4\xa2\xe5\xaf\x8c\xe8\xb5\x84\xe4\xba\xa7\xe5\xad\x98\xe5\x9c\xa8shiro-CVE-2020-1234\xe6\xbc\x8f\xe6\xb4\x9e","responser":"fangzhouli@creditease.cn|xiaojunzhang@creditease.cn","framework_name":"shiro","framework_version":"1.2.3","app_path":"/home/multimedia/report-tomcat-replace/webapps/AnBangReport/WEB-INF","business_group":"\xe6\x9c\xaa\xe5\x88\x86\xe7\xbb\x84\xe4\xb8\xbb\xe6\x9c\xba","risk":"\xe8\xbf\x9c\xe7\xa8\x8b\xe4\xbb\xa3\xe7\xa0\x81\xe6\x89\xa7\xe8\xa1\x8c\xe3\x80\x81\xe6\x9c\xaa\xe6\x8e\x88\xe6\x9d\x83\xe8\xae\xbf\xe9\x97\xae"}]'
+
+        data = json.loads(data.decode())
+
+        vuls = {}
+        for item in data:
+            vul_name = item.get('app')
+            asset = {'ip': item.get('ip'), 'framework_name': item.get('framework_name'), 'framework_version': item.get('framework_version'), \
+                    'app_path': item.get('app_path'), 'business_group': item.get('business_group'), 'risk': item.get('risk')}
+
+            if not vuls.get(vul_name):
+                vuls[vul_name] = dict(vul_name = vul_name, group_name = vul_name, appname = vul_name, \
+                        parent_group = item.get('user_group'), assets = [asset], \
+                        users = item.get('responser', '').split('|') + item.get('leader').split('|'))
+            else:
+                vuls[vul_name]['assets'].append(asset)
+
+        for k, vul in vuls.items():
+            users = [item for item in vul.get('users') if item]
+            owner_email = users[-1]
+            users = list(set(users))
+
+            user_ids = []
+            for email in users:
+                username = email.split("@")[0]
+                from action.user import get_default_role
+                user = User.get_or_none(User.username == username)
+                if not user:
+                    user = User(username = username, email = email, role_id = get_default_role())
+                    user.save()
+                elif not user.email:
+                    User.update(email = email).where(User.username == username).execute()
+                user_ids.append(user.id)
+
+            owner_username = owner_email.split("@")[0]
+            owner = User.get_or_none(User.username == owner_username)
+
+            parent_group = Group.get_or_none(Group.name == vul.get('parent_group'), Group.parent == 0)
+            if not parent_group:
+                parent_group = Group(name = vul.get('parent_group'), owner = owner.id, desc = vul.get('parent_group'))
+                parent_group.save()
+            parent_group_id = parent_group.id
+
+            assets = vul.get('assets')
+            group_name = vul.get('group_name')
+            appname = vul.get('appname')
+            vul_name = vul.get('vul_name')
+
+            group = Group.get_or_none(Group.name == group_name, Group.parent == parent_group_id)
+            if not group:
+                group = Group(name = group_name, owner = owner.id, parent = parent_group_id, desc = group_name)
+                group.save()
+
+            role = Role.get_or_none(Role.type == 1)
+            for user_id in user_ids:
+                gu = GroupUser.get_or_none(GroupUser.group_id == group.id, GroupUser.user_id == user_id)
+                if not gu:
+                    GroupUser(group_id = group.id, user_id = user_id, role_id = role.id).save()
+
+                gu = GroupUser.get_or_none(GroupUser.group_id == parent_group_id, GroupUser.user_id == user_id)
+                if not gu:
+                    GroupUser(group_id = parent_group_id, user_id = user_id, role_id = role.id).save()
+
+            app = App.get_or_none(App.appname == appname)
+            if not app:
+                app = App(appname = appname, group_id =  group.id, level = 10, sec_level = 10, apptype = 20, sec_owner = owner.id)
+                app.save()
+
+            vul_poc = """
+一、漏洞概述
+2020年08月18日， Apache Shiro发布了权限绕过 的风险通告，漏洞编号为 CVE-2020-13933，漏洞等级高危。 Apahce Shiro由于处理身份验证请求时出错存在权限绕过漏洞，远程攻击者可以发送特制的HTTP请求，绕过身份验证过程并获得对应用程序的未授权访问。
+参考链接：https://www.anquanke.com/post/id/214577
+
+二、影响版本
+Apache Shiro < 1.6.0
+
+三、修复建议
+建议使用Apache Shiro 的业务及时升级到最新版本Apache Shiro >= 1.6.0。
+下载地址：http://shiro.apache.org/download.html
+
+四、受威胁业务
+目前青藤云监控检测到我司受影响IP列表如下。请各位owner及时回复修复进度，安装路径可联系安全部查询。未安装青藤监控的主机请业务及时自查，或联系安全部添加。
+无主IP安全部将进行统一处理，尽可能确保业务连续性。
+
+
+|  主机IP   | 框架名称  |  框架版本  |  应用路径  |  业务组  |  风险  |
+|  ----  | ----  | ----  | ----  | ----  | ----  |
+            """
+            for asset in assets:
+                xasset = Asset.get_or_none(Asset.value == asset.get('ip'))
+                if not xasset:
+                    Asset(name = asset.get('ip'), value = asset.get('ip'), app_id = app.id, type = 20).save()
+
+                asset = {'ip': asset.get('ip'), 'framework_name': asset.get('framework_name'), 'framework_version': asset.get('framework_version'), \
+                        'app_path': asset.get('app_path'), 'business_group': asset.get('business_group'), 'risk': asset.get('risk')}
+                asset_info = "| {}  | {} | {} | {} | {} | {} |\r\n".format(asset['ip'], asset['framework_name'], asset['framework_version'], asset['app_path'], asset['business_group'], asset['risk'])
+                vul_poc += asset_info
+
+            vul = Vul(vul_name = vul_name, vul_type = 75, vul_level = 30, app_id = app.id, user_id = owner.id, vul_poc = vul_poc, self_rank = 7)
+            vul.save()
+
+        self.write(dict(status = True, msg = "导入成功"))
