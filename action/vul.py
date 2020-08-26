@@ -679,8 +679,6 @@ class VulImport(BaseHandler):
 
     def post(self):
         data = self.request.body
-        data = b'[{"ip":"10.134.136.89","user_group":"shiro-CVE-2020-11989\xe6\xbc\x8f\xe6\xb4\x9e\xe9\x80\x9a\xe5\x91\x8a\xe7\xbb\x84","leader":"fangzhouli@creditease.cn|xiaojunzhang@creditease.cn","app":"\xe5\xae\x9c\xe4\xbf\xa1\xe8\xb4\xa2\xe5\xaf\x8c\xe8\xb5\x84\xe4\xba\xa7\xe5\xad\x98\xe5\x9c\xa8shiro-CVE-2020-1234\xe6\xbc\x8f\xe6\xb4\x9e","responser":"jianwang163@creditease.cn|binxu37@creditease.cn","framework_name":"shiro","framework_version":"1.2.3","app_path":"/opt/yrd_web/credit-parser/WEB-INF","business_group":"\xe6\x9c\xaa\xe5\x88\x86\xe7\xbb\x84\xe4\xb8\xbb\xe6\x9c\xba","risk":"\xe8\xbf\x9c\xe7\xa8\x8b\xe4\xbb\xa3\xe7\xa0\x81\xe6\x89\xa7\xe8\xa1\x8c\xe3\x80\x81\xe6\x9c\xaa\xe6\x8e\x88\xe6\x9d\x83\xe8\xae\xbf\xe9\x97\xae"},{"ip":"10.151.5.220","user_group":"shiro-CVE-2020-11989\xe6\xbc\x8f\xe6\xb4\x9e\xe9\x80\x9a\xe5\x91\x8a\xe7\xbb\x84","leader":"fangzhouli@creditease.cn|xiaojunzhang@creditease.cn","app":"\xe5\xae\x9c\xe4\xbf\xa1\xe8\xb4\xa2\xe5\xaf\x8c\xe8\xb5\x84\xe4\xba\xa7\xe5\xad\x98\xe5\x9c\xa8shiro-CVE-2020-1234\xe6\xbc\x8f\xe6\xb4\x9e","responser":"jianwang163@creditease.cn|binxu37@creditease.cn","framework_name":"shiro","framework_version":"1.4.0","app_path":"/opt/amhome/am/WEB-INF","business_group":"\xe6\x9c\xaa\xe5\x88\x86\xe7\xbb\x84\xe4\xb8\xbb\xe6\x9c\xba","risk":"\xe6\x9c\xaa\xe6\x8e\x88\xe6\x9d\x83\xe8\xae\xbf\xe9\x97\xae"},{"ip":"10.134.136.72","user_group":"shiro-CVE-2020-11989\xe6\xbc\x8f\xe6\xb4\x9e\xe9\x80\x9a\xe5\x91\x8a\xe7\xbb\x84","leader":"fangzhouli@creditease.cn|xiaojunzhang@creditease.cn","app":"\xe5\xae\x9c\xe4\xbf\xa1\xe8\xb4\xa2\xe5\xaf\x8c\xe8\xb5\x84\xe4\xba\xa7\xe5\xad\x98\xe5\x9c\xa8shiro-CVE-2020-1234\xe6\xbc\x8f\xe6\xb4\x9e","responser":"jianwang163@creditease.cn|binxu37@creditease.cn","framework_name":"shiro","framework_version":"1.5.3","app_path":"/data/yx_soft/activemq/lib/optional","business_group":"\xe6\x9c\xaa\xe5\x88\x86\xe7\xbb\x84\xe4\xb8\xbb\xe6\x9c\xba","risk":"\xe6\x9c\xaa\xe6\x8e\x88\xe6\x9d\x83\xe8\xae\xbf\xe9\x97\xae"},{"ip":"10.134.90.15","user_group":"shiro-CVE-2020-11989\xe6\xbc\x8f\xe6\xb4\x9e\xe9\x80\x9a\xe5\x91\x8a\xe7\xbb\x84","leader":"fangzhouli@creditease.cn|xiaojunzhang@creditease.cn","app":"\xe5\xae\x9c\xe4\xbf\xa1\xe8\xb4\xa2\xe5\xaf\x8c\xe8\xb5\x84\xe4\xba\xa7\xe5\xad\x98\xe5\x9c\xa8shiro-CVE-2020-1234\xe6\xbc\x8f\xe6\xb4\x9e","responser":"jianwang163@creditease.cn|binxu37@creditease.cn","framework_name":"shiro","framework_version":"1.5.3","app_path":"/data/yx_soft/activemq/lib/optional","business_group":"\xe6\x9c\xaa\xe5\x88\x86\xe7\xbb\x84\xe4\xb8\xbb\xe6\x9c\xba","risk":"\xe6\x9c\xaa\xe6\x8e\x88\xe6\x9d\x83\xe8\xae\xbf\xe9\x97\xae"},{"ip":"10.140.129.13","user_group":"shiro-CVE-2020-11989\xe6\xbc\x8f\xe6\xb4\x9e\xe9\x80\x9a\xe5\x91\x8a\xe7\xbb\x84","leader":"jianwang163@creditease.cn|binxu37@creditease.cn","app":"\xe5\xae\x9c\xe4\xba\xba\xe8\xb4\xa2\xe5\xaf\x8c\xe8\xb5\x84\xe4\xba\xa7\xe5\xad\x98\xe5\x9c\xa8shiro-CVE-2020-1234\xe6\xbc\x8f\xe6\xb4\x9e","responser":"fangzhouli@creditease.cn|xiaojunzhang@creditease.cn","framework_name":"shiro","framework_version":"1.2.3","app_path":"/home/multimedia/report-tomcat-replace/webapps/AnBangReport/WEB-INF","business_group":"\xe6\x9c\xaa\xe5\x88\x86\xe7\xbb\x84\xe4\xb8\xbb\xe6\x9c\xba","risk":"\xe8\xbf\x9c\xe7\xa8\x8b\xe4\xbb\xa3\xe7\xa0\x81\xe6\x89\xa7\xe8\xa1\x8c\xe3\x80\x81\xe6\x9c\xaa\xe6\x8e\x88\xe6\x9d\x83\xe8\xae\xbf\xe9\x97\xae"}]'
-
         data = json.loads(data.decode())
 
         vuls = {}
@@ -766,7 +764,7 @@ Apache Shiro < 1.6.0
 
 |  主机IP   | 框架名称  |  框架版本  |  应用路径  |  业务组  |  风险  |
 |  ----  | ----  | ----  | ----  | ----  | ----  |
-            """
+"""
             for asset in assets:
                 xasset = Asset.get_or_none(Asset.value == asset.get('ip'))
                 if not xasset:
@@ -777,7 +775,7 @@ Apache Shiro < 1.6.0
                 asset_info = "| {}  | {} | {} | {} | {} | {} |\r\n".format(asset['ip'], asset['framework_name'], asset['framework_version'], asset['app_path'], asset['business_group'], asset['risk'])
                 vul_poc += asset_info
 
-            vul = Vul(vul_name = vul_name, vul_type = 75, vul_level = 30, app_id = app.id, user_id = owner.id, vul_poc = vul_poc, self_rank = 7)
-            vul.save()
+            if not Vul.get_or_none(Vul.vul_name == vul_name):
+                Vul(vul_name = vul_name, vul_type = 75, vul_level = 30, app_id = app.id, user_id = owner.id, vul_poc = vul_poc, self_rank = 7).save()
 
         self.write(dict(status = True, msg = "导入成功"))
