@@ -4,6 +4,7 @@ import json
 from hashlib import md5
 from datetime import datetime
 
+import xlwt
 from playhouse.shortcuts import model_to_dict
 
 from tornadoweb import *
@@ -519,22 +520,37 @@ class VulExport(LoginedRequestHandler):
 
         vuls = Vul.select(Vul, User).join(User, JOIN.LEFT_OUTER, on=(Vul.user_id == User.id,)).where(*cond)
 
-        data = ""
+        title = "漏洞名称,类型,Rank,提交人,提交时间,状态".split(",")
+        writebook = xlwt.Workbook()
+        sheet = writebook.add_sheet('vuls')
+        index = 0
+        for i, t in enumerate(title):
+            sheet.write(index, i, t)
+
+        index += 1
+
         for vul in vuls[:]:
             if hasattr(vul, "user"):
                 username = vul.user.username
             else:
                 username = ""
 
-            data += "{},{},{},{},{},{}\r\n".format(vul.vul_name, VUL_TYPE.get(str(vul.vul_type), ""), \
+            data = [vul.vul_name, VUL_TYPE.get(str(vul.vul_type), ""), \
                         vul.self_rank, username, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(vul.submit_time)), \
-                        VUL_STATUS.get(str(vul.vul_status), ""))
+                        VUL_STATUS.get(str(vul.vul_status), "")]
 
-        title = "漏洞名称,类型,Rank,提交人,提交时间,状态\r\n"
+            for i, d in enumerate(data):
+                sheet.write(index, i, d)
 
-        self.set_header('Content-Type', 'application/octet-stream')
-        self.set_header('Content-Disposition', 'filename=VUL_{}.csv'.format(str(datetime.now())))
-        self.write(title + data)
+            index += 1
+
+        filename = "/tmp/VUL_{}.xls".format(str(datetime.now()))
+        writebook.save(filename)
+
+        with open(filename, 'rb') as f:
+            self.set_header('Content-Type', 'application/octet-stream')
+            self.set_header('Content-Disposition', 'filename=vul_export.xls')
+            self.write(f.read())
 
 
 @url(r"/vul/status/group", needcheck=False, category = "漏洞")
