@@ -1,4 +1,5 @@
 #!coding=utf-8
+import os
 import time
 import json
 from hashlib import md5
@@ -551,6 +552,8 @@ class VulExport(LoginedRequestHandler):
             self.set_header('Content-Type', 'application/octet-stream')
             self.set_header('Content-Disposition', 'filename=vul_export.xls')
             self.write(f.read())
+
+        os.remove(filename)
 
 
 @url(r"/vul/status/group", needcheck=False, category = "漏洞")
