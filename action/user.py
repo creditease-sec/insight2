@@ -344,6 +344,7 @@ class UserDel(LoginedRequestHandler):
             self.write(dict(status = False, msg = '不能删除自己'))
             return
 
+        Message.delete().where(Message.to.in_(ids)).execute()
         User.delete().where(User._id.in_(_id)).execute()
 
         self.write(dict(status = True, msg = '删除成功'))
