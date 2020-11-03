@@ -276,3 +276,18 @@ el-input-number__increase:hover:not(.is-disabled)~.el-input .el-input__inner:not
 .cron-button-group{
 	display:inline !important;
 }
+
+.enable-bulma .tabs li.is-active a {
+    border-bottom-color: #3e9b87f3 !important;
+    color: #3e9b87f3 !important;
+}
+
+
+.enable-bulma .b-checkbox.checkbox input[type=checkbox]:checked+.check {
+    background-color: #3e9b87f3  !important;
+    border-color: #3e9b87f3 !important;
+}
+
+.enable-bulma .b-checkbox.checkbox:hover input[type=checkbox]:not(:disabled)+.check {
+    border-color: #3e9b87f3 !important;
+}
