@@ -253,10 +253,9 @@ def auth_login(authinfo, username = None, password = None, test = False):
             searchFilter = '(' + searchFiltername + "=" + username +')'
 
             ldap_result_id = conn.search(baseDN, searchScope, searchFilter, retrieveAttributes)
-            result_type, result_data = conn.result(ldap_result_id,1)
+            result_type, result_data = conn.result(ldap_result_id, 0)
             if(not len(result_data) == 0):
-                r_a,r_b = result_data[0]
-                dn = r_b["distinguishedName"][0].decode()
+                dn = result_data[0][0]
             else:
                 return False, "获取用户DN 失败, 请配置LDAP服务用户名密码"
 
